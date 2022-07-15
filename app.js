@@ -20,27 +20,21 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-let foundUser;
+let mainUser;
+let mainPost;
 
-User.findById(62)
-    .then(user => {
-        foundUser = user;
-        const post = new Post('Third Post', 'Third bit of content', 'www.google.com');
-        return user.createPost(post);
+dbSetup()
+    .then(result => {
+        // const user = new User('o');
+        // return user.save();
+        return Post.findById(1);
+    })
+    .then(post => {
         
     })
-    .then(result => {
-        return foundUser.getPosts()
-    })
-    .then(posts => {
-        posts.forEach(post => {
-            post.title = post.title + ' ' + post.post_id;
-            post.update();
-        })
-    })
     .catch(err => {
-        console.log(err);
     })
 
-// app.listen(8080);
+
+app.listen(8080);
 

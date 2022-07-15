@@ -3,13 +3,13 @@ const db = require('../util/database');
 const Post = require('./post');
 
 module.exports = class User {
-    constructor(name, id=null) {
+    constructor(name, _id=null) {
         this.name = name,
-        this.user_id = id
+        this._id = _id
     }
 
     save() {
-        if(!this.user_id) {
+        if(!this._id) {
             return db.execute(
                 'INSERT INTO users (name) VALUES (?)', 
                 [this.name]
@@ -17,9 +17,9 @@ module.exports = class User {
         }
         return db.execute(
             `UPDATE users
-            SET name = ?
-            WHERE user_id = ?`,
-            [this.name, this.user_id]
+            SET name = ?, updated_at = ?
+            WHERE _id = ?`,
+            [this.name, new Date(), this._id]
         )
     }
 
@@ -30,7 +30,7 @@ module.exports = class User {
             post.title,
             post.content,
             post.imageUrl,
-            this.user_id
+            this._id
             ]
         )
     }
@@ -38,7 +38,7 @@ module.exports = class User {
     getPosts() {
         return db.execute(
             `SELECT * FROM posts WHERE user_id = ?`,
-            [this.user_id]
+            [this._id]
             )
             .then(([result]) => {
                 
@@ -52,7 +52,7 @@ module.exports = class User {
                             foundPost.content,
                             foundPost.imageUrl,
                             foundPost.user_id,
-                            foundPost.post_id
+                            foundPost._id
                             );
                             posts.push(post);
                     })
@@ -75,7 +75,7 @@ module.exports = class User {
 
                 if (result.length != 0) {
                     foundUsers.forEach(foundUser => {
-                        const user = new User(foundUser.name, foundUser.user_id);
+                        const user = new User(foundUser.name, foundUser._id);
                         users.push(user);
                     });
                 };
@@ -88,13 +88,13 @@ module.exports = class User {
     }
 
     static findById(id) {
-        return db.execute('SELECT * FROM users WHERE users.user_id = ?', [id])
+        return db.execute('SELECT * FROM users WHERE users._id = ?', [id])
             .then(([result]) => {
-                if (result.length == 0) {
+                if (result.length != 1) {
                     return new Error('No User Found')
                 };
                 const foundUser = result[0];
-                const user = new User(foundUser.name, foundUser.user_id)
+                const user = new User(foundUser.name, foundUser._id)
                 return user;
             })
             .catch(err => {

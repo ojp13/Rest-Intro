@@ -1,20 +1,24 @@
 const db = require('../util/database');
 
+const User = require('./user');
+
 module.exports = class Post {
-    constructor(title, content, imageUrl, user_id=null, post_id=null) {
+    constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null) {
         this.title = title,
         this.content = content,
         this.imageUrl = imageUrl,
         this.user_id = user_id,
-        this.post_id = post_id
+        this._id = _id,
+        this.creator = creator,
+        this.createdAt = createdAt
     }
 
     update() {
         return db.execute(
             `UPDATE posts
-            SET title = ?, content = ?, imageUrl = ?
-            WHERE post_id = ?`,
-            [this.title, this.content, this.imageUrl, this.post_id]);
+            SET title = ?, content = ?, imageUrl = ?, updated_at = ?
+            WHERE _id = ?`,
+            [this.title, this.content, this.imageUrl, new Date(), this._id]);
     }
 
     static fetchAll() {
@@ -22,6 +26,26 @@ module.exports = class Post {
     }
 
     static findById(id) {
-        return db.execute('SELECT * FROM products WHERE products.id=?', [id])
+        return db.execute(`
+            SELECT posts.*, users._id AS user_id, users.name AS user_name FROM posts
+            INNER JOIN users ON posts.user_id=users._id 
+            WHERE posts._id=?`, 
+            [id]
+            )
+        .then(([result]) => {
+            if (result.length != 1) {
+                return new Error('No Post Found')
+            };
+            const foundPost = result[0];
+            const post = new Post(foundPost.title, foundPost.content, foundPost.imageUrl, foundPost.user_id, foundPost._id, {
+                name: foundPost.user_name,
+                _id: foundPost.user_id
+            },
+            new Date(foundPost.created_at));
+            return post;
+        })
+        .catch(err => {
+            return err
+        });
     }
 };
