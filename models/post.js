@@ -1,15 +1,20 @@
 const db = require('../util/database');
 
 module.exports = class Post {
-    constructor(title, content, imageUrl, userId=null) {
+    constructor(title, content, imageUrl, user_id=null, post_id=null) {
         this.title = title,
         this.content = content,
         this.imageUrl = imageUrl,
-        this.userId = userId
+        this.user_id = user_id,
+        this.post_id = post_id
     }
 
-    save() {
-        return db.execute('INSERT INTO posts (title, content, imageUrl, userId) VALUES (?, ?, ?, ?)', [this.title, this.content, this.imageUrl, this.userId]);
+    update() {
+        return db.execute(
+            `UPDATE posts
+            SET title = ?, content = ?, imageUrl = ?
+            WHERE post_id = ?`,
+            [this.title, this.content, this.imageUrl, this.post_id]);
     }
 
     static fetchAll() {

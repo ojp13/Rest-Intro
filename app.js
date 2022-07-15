@@ -20,23 +20,27 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-const testUser = new User('Oscar');
+let foundUser;
 
-testUser.save()
-
-User.findById(7)
-    .then(([results]) => {
-        const result = results[0];
-        const user = new User(result.name, result.user_id);
-        const post = new Post('Test Posting', 'Test Content', 'www.test.com');
+User.findById(62)
+    .then(user => {
+        foundUser = user;
+        const post = new Post('Third Post', 'Third bit of content', 'www.google.com');
         return user.createPost(post);
+        
     })
     .then(result => {
-        console.log(result);
+        return foundUser.getPosts()
+    })
+    .then(posts => {
+        posts.forEach(post => {
+            post.title = post.title + ' ' + post.post_id;
+            post.update();
+        })
     })
     .catch(err => {
         console.log(err);
     })
 
-app.listen(8080);
+// app.listen(8080);
 
