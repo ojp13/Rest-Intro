@@ -20,16 +20,8 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
-let mainUser;
-let mainPost;
-
 dbSetup()
     .then(result => {
-        // const user = new User('o');
-        // return user.save();
-        return Post.findById(1);
-    })
-    .then(post => {
         
     })
     .catch(err => {

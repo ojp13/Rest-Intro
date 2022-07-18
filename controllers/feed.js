@@ -4,21 +4,18 @@ const Post = require('../models/post');
 const User = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
-    res
-        .status(200)
-        .json({
-            posts: [
-            {
-                _id: 1,
-                title: "abc",
-                content: 123,
-                imageUrl: 'images/bike.png',
-                creator: {
-                    name: 'Billy Bob'
-                },
-                createdAt: new Date()
-            }
-        ]})
+
+    return Post.fetchAll()
+    .then(posts => {
+        res
+            .status(200)
+            .json({
+                posts: posts
+            })
+    })
+    .catch(err => {
+        console.log(err);
+    })
 };
 
 exports.postPost = (req, res, next) => {
@@ -39,7 +36,7 @@ exports.postPost = (req, res, next) => {
         1
     )
 
-    return User.findById(11)
+    return User.findById(1)
         .then(foundUser => {
             user = foundUser
             return user.createPost(post)

@@ -22,7 +22,33 @@ module.exports = class Post {
     }
 
     static fetchAll() {
-        return db.execute('SELECT * FROM products');
+        return db.execute('SELECT * FROM posts')
+            .then(([foundPosts]) => {
+                const posts = [];
+                foundPosts.forEach(foundPost => {
+                    
+                const post = new Post(
+                    foundPost.title, 
+                    foundPost.content, 
+                    foundPost.imageUrl, 
+                    foundPost.user_id, 
+                    foundPost._id, 
+                    {
+                        name: foundPost.user_name,
+                        _id: foundPost.user_id
+                    },
+                    new Date(foundPost.created_at)
+                    );
+
+                posts.push(post);
+
+                })
+
+                return posts;
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     static findById(id) {
@@ -37,11 +63,18 @@ module.exports = class Post {
                 return new Error('No Post Found')
             };
             const foundPost = result[0];
-            const post = new Post(foundPost.title, foundPost.content, foundPost.imageUrl, foundPost.user_id, foundPost._id, {
-                name: foundPost.user_name,
-                _id: foundPost.user_id
-            },
-            new Date(foundPost.created_at));
+            const post = new Post(
+                foundPost.title, 
+                foundPost.content, 
+                foundPost.imageUrl, 
+                foundPost.user_id, 
+                foundPost._id, 
+                {
+                    name: foundPost.user_name,
+                    _id: foundPost.user_id
+                },
+                new Date(foundPost.created_at)
+                );
             return post;
         })
         .catch(err => {
