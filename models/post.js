@@ -22,7 +22,10 @@ module.exports = class Post {
     }
 
     static fetchAll() {
-        return db.execute('SELECT * FROM posts')
+        return db.execute(
+            `SELECT posts.*, users._id AS user_id, users.name AS user_name FROM posts
+            INNER JOIN users on posts.user_id = users._id`
+        )
             .then(([foundPosts]) => {
                 const posts = [];
                 foundPosts.forEach(foundPost => {

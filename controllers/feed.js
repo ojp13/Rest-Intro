@@ -6,16 +6,16 @@ const User = require('../models/user');
 exports.getPosts = (req, res, next) => {
 
     return Post.fetchAll()
-    .then(posts => {
-        res
-            .status(200)
-            .json({
-                posts: posts
-            })
-    })
-    .catch(err => {
-        console.log(err);
-    })
+        .then(posts => {
+            res
+                .status(200)
+                .json({
+                    posts: posts
+                })
+        })
+        .catch(err => {
+            console.log(err);
+        })
 };
 
 exports.postPost = (req, res, next) => {
