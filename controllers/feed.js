@@ -19,26 +19,34 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.postPost = (req, res, next) => {
+    console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(422).json({
-            message: 'Validation failed',
-            errors: errors.array()
-        })
+        const error = new Error('Validation failed, entered data is incorrect.');
+        error.statusCode = 422;
+
+        throw error;
+    }
+    if (!req.file) {
+        const error = new Error('No image provided');
+        error.statusCode = 422;
+        throw error;
     }
 
     const title = req.body.title;
     const content = req.body.content;
+    const imageUrl = req.file.path;
+
     const post = new Post(
         title,
         content,
-        'www.google.com',
+        imageUrl,
         1
     )
 
     return User.findById(1)
         .then(foundUser => {
-            user = foundUser
+            const user = foundUser
             return user.createPost(post)
         })
         .then(([result]) => {
@@ -51,5 +59,33 @@ exports.postPost = (req, res, next) => {
                 post: post
             })
         })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
 
 };
+
+exports.getPost = (req, res, next) => {
+
+    const postId = req.params.postId;
+    console.log('Retriving post: ' + postId)
+
+    return Post.findById(postId)
+        .then(post => {
+            if (!post) {
+                const error = new Error('Could not find post.');
+                error.statusCode = 404;
+                throw error;
+            }
+            res.status(200).json({ message: 'Post fetched.', post: post })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+}
