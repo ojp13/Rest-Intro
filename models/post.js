@@ -1,7 +1,5 @@
 const db = require('../util/database');
 
-const User = require('./user');
-
 module.exports = class Post {
     constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null) {
         this.title = title,
@@ -19,6 +17,14 @@ module.exports = class Post {
             SET title = ?, content = ?, imageUrl = ?, updated_at = ?
             WHERE _id = ?`,
             [this.title, this.content, this.imageUrl, new Date(), this._id]);
+    }
+
+    delete() {
+        return db.execute(
+            `DELETE FROM posts
+            WHERE _id = ?`,
+            [this._id]
+        )
     }
 
     static fetchAll() {

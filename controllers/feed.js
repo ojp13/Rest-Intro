@@ -1,4 +1,6 @@
 const { validationResult } = require('express-validator');
+const path = require('path');
+const fs = require('fs');
 
 const Post = require('../models/post');
 const User = require('../models/user');
@@ -19,7 +21,7 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.postPost = (req, res, next) => {
-    console.log(req.body);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Validation failed, entered data is incorrect.');
@@ -53,7 +55,6 @@ exports.postPost = (req, res, next) => {
             return Post.findById(result.insertId);
         })
         .then(post => {
-            console.log(post);
             return res.status(201).json({
                 message: "post created successfully",
                 post: post
@@ -71,7 +72,7 @@ exports.postPost = (req, res, next) => {
 exports.getPost = (req, res, next) => {
 
     const postId = req.params.postId;
-    console.log('Retriving post: ' + postId)
+    console.log('Retrieving post: ' + postId)
 
     return Post.findById(postId)
         .then(post => {
@@ -88,4 +89,79 @@ exports.getPost = (req, res, next) => {
             }
             next(err);
         })
+}
+
+exports.updatePost = (req, res, next) => {
+
+    const postId = req.params.postId;
+    const updatedTitle = req.body.title;
+    const updatedContent = req.body.content;
+    let updatedImageUrl = req.body.image;
+
+    if (req.file) {
+        updatedImageUrl = req.file.path;
+    }
+    if(!updatedImageUrl) {
+        const error = new Error('No file picked.');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    let updatedPost;
+
+    return Post.findById(postId)
+        .then(post => {
+            if(!post) {
+                const error = new Error('Can not find Post to update.');
+                error.statusCode = 422;
+                throw error;
+            }
+            if (post.imageUrl !== updatedImageUrl) {
+                clearImage(post.imageUrl);
+                post.imageUrl = updatedImageUrl;
+            }
+
+            post.title = updatedTitle;
+            post.content = updatedContent;
+
+            updatedPost = post;
+
+            return post.update()
+        })
+        .then(result => {
+            return res.status(200).json({ message: 'Post Updated Successfully.', post: updatedPost });
+        })
+        .catch(err => {
+            next(err);
+        })
+
+};
+
+exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+
+    return Post.findById(postId)
+        .then(post => {
+            
+            if(!post) {
+                const error = new Error('Can not find Post to update.');
+                error.statusCode = 422;
+                throw error;
+            }
+
+            clearImage(post.imageUrl);
+            return post.delete();
+        })
+        .then(result => {
+            res.status(200).json({ message: 'Post deleted successfully' })
+        })
+        .catch(err => {
+            console.log(err);
+            next(err);
+        })
+}
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => {console.log(err)});
 }
