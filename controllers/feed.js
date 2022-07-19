@@ -6,18 +6,32 @@ const Post = require('../models/post');
 const User = require('../models/user');
 
 exports.getPosts = (req, res, next) => {
+    
+    const currentPage = req.query.page || 1;
+    const perPage = 3;
 
-    return Post.fetchAll()
+    let totalItems;
+
+    return Post.countRecords()
+        .then(count => {
+            totalItems = count    
+            return Post.fetchSkip((currentPage - 1) * perPage, perPage)
+        })
         .then(posts => {
             res
                 .status(200)
                 .json({
-                    posts: posts
+                    posts: posts,
+                    totalItems: totalItems
                 })
         })
         .catch(err => {
-            console.log(err);
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         })
+
 };
 
 exports.postPost = (req, res, next) => {

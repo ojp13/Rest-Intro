@@ -3,6 +3,9 @@ const db = require('./database');
 let createUsers = `CREATE TABLE IF NOT EXISTS users(
     _id INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     name VARCHAR (255) NOT NULL,
+    email VARCHAR (255) NOT NULL,
+    password VARCHAR (255) NOT NULL,
+    status VARCHAR (255) NOT NULL DEFAULT 'I am new!',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )`;

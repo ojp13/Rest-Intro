@@ -89,5 +89,52 @@ module.exports = class Post {
         .catch(err => {
             return err
         });
+    };
+
+    static countRecords() {
+        return db.execute(
+            `SELECT COUNT(*) as count
+            FROM posts`
+        )
+        .then(([result]) => {
+            return result[0].count;
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    static fetchSkip(skip, limit) {
+        return db.execute(
+            `SELECT * FROM posts
+            LIMIT ? OFFSET ?`,
+            [limit.toString(), skip.toString()]
+            )
+            .then(([foundPosts]) => {
+                const posts = [];
+                foundPosts.forEach(foundPost => {
+                    
+                const post = new Post(
+                    foundPost.title, 
+                    foundPost.content, 
+                    foundPost.imageUrl, 
+                    foundPost.user_id, 
+                    foundPost._id, 
+                    {
+                        name: foundPost.user_name,
+                        _id: foundPost.user_id
+                    },
+                    new Date(foundPost.created_at)
+                    );
+
+                posts.push(post);
+
+                })
+
+                return posts;
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 };

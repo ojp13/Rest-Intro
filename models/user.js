@@ -3,23 +3,26 @@ const db = require('../util/database');
 const Post = require('./post');
 
 module.exports = class User {
-    constructor(name, _id=null) {
+    constructor(name, email, password, status='I am new!', _id=null) {
         this.name = name,
+        this.email = email, 
+        this.password = password,
+        this.status = status,
         this._id = _id
     }
 
     save() {
         if(!this._id) {
             return db.execute(
-                'INSERT INTO users (name) VALUES (?)', 
-                [this.name]
+                'INSERT INTO users (name, email, password, status) VALUES (?, ?, ?, ?)', 
+                [this.name, this.email, this.password, this.status]
                 );
         }
         return db.execute(
             `UPDATE users
-            SET name = ?, updated_at = ?
+            SET name = ?, email = ?, password = ?, status = ?, updated_at = ?
             WHERE _id = ?`,
-            [this.name, new Date(), this._id]
+            [this.name, this.email, this.password, this.status, new Date(), this._id]
         )
     }
 
@@ -75,7 +78,13 @@ module.exports = class User {
 
                 if (result.length != 0) {
                     foundUsers.forEach(foundUser => {
-                        const user = new User(foundUser.name, foundUser._id);
+                        const user = new User(
+                            foundUser.name, 
+                            foundUser.email,
+                            foundUser.password,
+                            foundUser.status,
+                            foundUser._id
+                        );
                         users.push(user);
                     });
                 };
@@ -94,12 +103,47 @@ module.exports = class User {
                     return new Error('No User Found')
                 };
                 const foundUser = result[0];
-                const user = new User(foundUser.name, foundUser._id)
+                const user = new User(
+                    foundUser.name,
+                    foundUser.email,
+                    foundUser.password,
+                    foundUser.status,
+                    foundUser._id
+                )
                 return user;
             })
             .catch(err => {
                 return err
             });
+    }
+
+    static findOneByEmail(value) {
+        console.log('Key: ' + key + ', Value: ' + value);
+        return db.execute(
+            `SELECT * FROM users
+            WHERE email = ?
+            LIMIT 1`,
+            [value]
+            )
+            .then(([result]) => {
+                console.log(result);
+                if (result.length == 0) {
+                    return null
+                }
+                const foundUser = result[0];
+                const user = new User(
+                    foundUser.name,
+                    foundUser.email,
+                    foundUser.password,
+                    foundUser.status,
+                    foundUser._id
+                    )
+                return user;
+            })
+            .catch(err => {
+                console.log(err);
+                next(err);
+            })
     }
 
 }
