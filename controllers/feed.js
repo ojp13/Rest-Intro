@@ -72,7 +72,6 @@ exports.postPost = (req, res, next) => {
 exports.getPost = (req, res, next) => {
 
     const postId = req.params.postId;
-    console.log('Retrieving post: ' + postId)
 
     return Post.findById(postId)
         .then(post => {
@@ -81,6 +80,7 @@ exports.getPost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
+            post.imageUrl = post.imageUrl.replace("\\", "/");
             res.status(200).json({ message: 'Post fetched.', post: post })
         })
         .catch(err => {
