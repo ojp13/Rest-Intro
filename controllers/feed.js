@@ -52,6 +52,7 @@ exports.postPost = (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     const imageUrl = req.file.path;
+    const userId = req.userId;
 
     const post = new Post(
         title,
@@ -60,7 +61,7 @@ exports.postPost = (req, res, next) => {
         1
     )
 
-    return User.findById(1)
+    return User.findById(userId)
         .then(foundUser => {
             const user = foundUser
             return user.createPost(post)

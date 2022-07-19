@@ -11,7 +11,7 @@ router.put('/signup',[
         .isEmail()
         .normalizeEmail()
         .custom(value => {
-            return User.findOneByEmail('email', value)
+            return User.findOneByEmail(value)
                 .then(user => {
                     if (user) {
                         return Promise.reject('Email address already exists.')
@@ -26,6 +26,9 @@ router.put('/signup',[
         .not()
         .isEmpty()
     ],
-    authController.signup)
+    authController.signup
+    )
+
+router.post('/login', authController.login)
 
 module.exports = router;

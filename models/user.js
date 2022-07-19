@@ -118,7 +118,6 @@ module.exports = class User {
     }
 
     static findOneByEmail(value) {
-        console.log('Key: ' + key + ', Value: ' + value);
         return db.execute(
             `SELECT * FROM users
             WHERE email = ?
@@ -126,7 +125,6 @@ module.exports = class User {
             [value]
             )
             .then(([result]) => {
-                console.log(result);
                 if (result.length == 0) {
                     return null
                 }
