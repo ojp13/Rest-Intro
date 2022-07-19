@@ -111,6 +111,7 @@ exports.updatePost = (req, res, next) => {
     const postId = req.params.postId;
     const updatedTitle = req.body.title;
     const updatedContent = req.body.content;
+    const userId = req.userId;
     let updatedImageUrl = req.body.image;
 
     if (req.file) {
@@ -131,6 +132,13 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 422;
                 throw error;
             }
+
+            if (post.user_id.toString() !== userId) {
+                const error = new Error('Not authorised to changed this post.');
+                error.statusCode = 401;
+                throw error;
+            }
+            
             if (post.imageUrl !== updatedImageUrl) {
                 clearImage(post.imageUrl);
                 post.imageUrl = updatedImageUrl;
@@ -154,6 +162,7 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
     const postId = req.params.postId;
+    const userId = req.userId;
 
     return Post.findById(postId)
         .then(post => {
@@ -161,6 +170,12 @@ exports.deletePost = (req, res, next) => {
             if(!post) {
                 const error = new Error('Can not find Post to update.');
                 error.statusCode = 422;
+                throw error;
+            }
+
+            if (userId.toString() !== post.user_id.toString()) {
+                const error = new Error('This is not your post to delete.');
+                error.statusCode = 401;
                 throw error;
             }
 
