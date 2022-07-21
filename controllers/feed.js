@@ -2,13 +2,14 @@ const { validationResult } = require('express-validator');
 const path = require('path');
 const fs = require('fs');
 
+const io = require('../socket')
 const Post = require('../models/post');
 const User = require('../models/user');
 
 exports.getPosts = async (req, res, next) => {
     
     const currentPage = req.query.page || 1;
-    const perPage = 1;
+    const perPage = 5;
 
     try {
     const totalItems = await Post.countRecords()
@@ -63,10 +64,16 @@ exports.postPost = (req, res, next) => {
             return Post.findById(result.insertId);
         })
         .then(post => {
+
+            io.getIO().emit('posts', {
+                action: 'create',
+                post: post
+            });
+
             return res.status(201).json({
                 message: "post created successfully",
                 post: post
-            })
+            });
         })
         .catch(err => {
             if (!err.statusCode) {
