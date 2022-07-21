@@ -152,7 +152,7 @@ exports.updatePost = (req, res, next) => {
             return post.update()
         })
         .then(result => {
-            io.getIO().emit('posts', { action: 'update', post: updatedPost })
+            io.getIO().emit('posts', { action: 'update', post: updatedPost });
             return res.status(200).json({ message: 'Post Updated Successfully.', post: updatedPost });
         })
         .catch(err => {
@@ -184,6 +184,9 @@ exports.deletePost = (req, res, next) => {
             return post.delete();
         })
         .then(result => {
+            console.log('Post deleted');
+            console.log(io);
+            io.getIO().emit('posts', { action: 'delete', post: postId });
             res.status(200).json({ message: 'Post deleted successfully' })
         })
         .catch(err => {
