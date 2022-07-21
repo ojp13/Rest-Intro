@@ -1,6 +1,7 @@
 const path = require('path');
 
 const express = require('express');
+const io = require('./socket');
 const bodyParser = require('body-parser');
 
 const dbSetup = require('./util/databaseSetup');
@@ -43,6 +44,8 @@ app.use((req, res, next) => {
     next();
 })
 
+
+
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
 
@@ -55,7 +58,11 @@ app.use((error, req, res, next) => {
 
 dbSetup()
     .then(result => {
-        app.listen(8080);
+        const server = app.listen(8080);
+        const socket = io.init(server);
+        socket.on('connection', (socket) => {
+            
+        });
     })
     .catch(err => {
     })
