@@ -9,7 +9,7 @@ const User = require('../models/user');
 exports.getPosts = async (req, res, next) => {
     
     const currentPage = req.query.page || 1;
-    const perPage = 2;
+    const perPage = 10;
 
     try {
     const totalItems = await Post.countRecords()
@@ -152,6 +152,7 @@ exports.updatePost = (req, res, next) => {
             return post.update()
         })
         .then(result => {
+            io.getIO().emit('posts', { action: 'update', post: updatedPost })
             return res.status(200).json({ message: 'Post Updated Successfully.', post: updatedPost });
         })
         .catch(err => {
