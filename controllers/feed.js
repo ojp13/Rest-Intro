@@ -9,7 +9,7 @@ const User = require('../models/user');
 exports.getPosts = async (req, res, next) => {
     
     const currentPage = req.query.page || 1;
-    const perPage = 5;
+    const perPage = 2;
 
     try {
     const totalItems = await Post.countRecords()

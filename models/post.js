@@ -105,8 +105,9 @@ module.exports = class Post {
     }
 
     static fetchSkip(skip, limit) {
-        return db.execute(
-            `SELECT * FROM posts
+        return db.execute(`
+            SELECT posts.*, users._id AS user_id, users.name AS user_name FROM posts
+            INNER JOIN users ON posts.user_id=users._id 
             LIMIT ? OFFSET ?`,
             [limit.toString(), skip.toString()]
             )
