@@ -1,6 +1,11 @@
 const path = require('path');
 
 const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+
+const graphqlSchema = require('./graphql/schema');
+const graphqlResolver = require('./graphql/resolvers');
+
 const bodyParser = require('body-parser');
 
 const dbSetup = require('./util/databaseSetup');
@@ -45,7 +50,13 @@ app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
     res.status(status).json({ message: message });
+});
+
+app.use('/graphql', graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver
 })
+);
 
 dbSetup()
     .then(result => {
