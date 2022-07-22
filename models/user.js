@@ -16,8 +16,14 @@ module.exports = class User {
             return db.execute(
                 'INSERT INTO users (name, email, password, status) VALUES (?, ?, ?, ?)', 
                 [this.name, this.email, this.password, this.status]
-                );
-        }
+                )
+                .then(([result]) => {
+                    return User.findById(result.insertId)
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        };
         return db.execute(
             `UPDATE users
             SET name = ?, email = ?, password = ?, status = ?, updated_at = ?
