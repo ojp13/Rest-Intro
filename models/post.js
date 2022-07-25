@@ -1,14 +1,15 @@
 const db = require('../util/database');
 
 module.exports = class Post {
-    constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null) {
+    constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null, updatedAt=null) {
         this.title = title,
         this.content = content,
         this.imageUrl = imageUrl,
         this.user_id = user_id,
         this._id = _id,
         this.creator = creator,
-        this.createdAt = createdAt
+        this.createdAt = createdAt,
+        this.updatedAt = updatedAt
     }
 
     update() {
@@ -82,7 +83,8 @@ module.exports = class Post {
                     name: foundPost.user_name,
                     _id: foundPost.user_id
                 },
-                new Date(foundPost.created_at)
+                new Date(foundPost.created_at),
+                new Date(foundPost.updated_at)
                 );
             return post;
         })

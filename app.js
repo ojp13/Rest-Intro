@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 
 const dbSetup = require('./util/databaseSetup');
 const multer = require('multer');
+const auth = require('./middleware/auth');
 
 const app = express();
 
@@ -54,6 +55,8 @@ app.use((error, req, res, next) => {
     const message = error.message;
     res.status(status).json({ message: message });
 });
+
+app.use(auth);
 
 app.use('/graphql', graphqlHTTP({
     schema: graphqlSchema,

@@ -42,6 +42,17 @@ module.exports = class User {
             this._id
             ]
         )
+            .then(([result]) => {
+                const postId = result.insertId
+
+                return Post.findById(postId);
+            })
+            .then(post => {
+                return post
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     getPosts() {
@@ -119,7 +130,9 @@ module.exports = class User {
                 return user;
             })
             .catch(err => {
-                return err
+                const error = new Error(err.message);
+                error.code = 500;
+                next(error);
             });
     }
 

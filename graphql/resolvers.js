@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Post = require('../models/post');
 
 const validator = require('validator');
 
@@ -81,6 +82,69 @@ module.exports = {
         return {
             token: token,
             userId: user._id.toString()
+        }
+    },
+    createPost: async function ( { postInput }, req) {
+
+        if (!req.isAuth) {
+            const error = new Error('You are not authenticated');
+            error.code = 401;
+            throw error;
+        }
+
+        const title = postInput.title;
+        const content = postInput.content;
+        const imageUrl = postInput.imageUrl;
+
+        const errors = [];
+        if (validator.isEmpty(title) ||
+            !validator.isLength(title, { min: 5 })) {
+                errors.push({ message: 'Title is invalid.'})
+            }
+        if (validator.isEmpty(content) || 
+            !validator.isLength(content, { min: 5 })) {
+                errors.push({ message: 'Content is invalid.'})
+            }
+
+        if (errors.length > 0) {
+            const error = new Error('Invalid Input');
+            error.data = errors;
+            error.code = 422;
+            throw error;
+        }
+
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            const error = new Error('You are not logged in.');
+            error.code = 401;
+            throw error;
+        }
+
+        const newPost = new Post(
+            title,
+            content,
+            imageUrl
+        )
+
+        const savedPost = await user.createPost(newPost);
+
+        console.log(savedPost)
+
+        if (!savedPost._id) {
+            const error = new Error('Post creation failed.');
+            error.code = 500;
+            throw error;
+        }
+
+        return {
+            _id: savedPost._id,
+            title: savedPost.title,
+            content: savedPost.content,
+            imageUrl: savedPost.imageUrl,
+            creator: savedPost.creator,
+            createdAt: savedPost.createdAt,
+            updatedAt: savedPost.updatedAt
         }
     }
 }
