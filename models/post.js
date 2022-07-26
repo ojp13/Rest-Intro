@@ -47,7 +47,8 @@ module.exports = class Post {
                         name: foundPost.user_name,
                         _id: foundPost.user_id
                     },
-                    new Date(foundPost.created_at)
+                    new Date(foundPost.created_at),
+                    new Date(foundPost.updated_at)
                     );
 
                 posts.push(post);
@@ -127,7 +128,8 @@ module.exports = class Post {
                         name: foundPost.user_name,
                         _id: foundPost.user_id
                     },
-                    new Date(foundPost.created_at)
+                    new Date(foundPost.created_at),
+                    new Date(foundPost.updated_at)
                     );
 
                 posts.push(post);

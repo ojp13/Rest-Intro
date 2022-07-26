@@ -8,7 +8,7 @@ module.exports = buildSchema(`
         imageUrl: String!
         creator: User!
         createdAt: String!
-        updatedAt: String!
+        updatedAt: String
     }
 
     type User {
@@ -22,6 +22,11 @@ module.exports = buildSchema(`
     type AuthData {
         token: String!
         userId: String!
+    }
+
+    type PostData {
+        posts: [Post!]!
+        totalPosts: Int!
     }
 
     input UserInputData {
@@ -43,6 +48,7 @@ module.exports = buildSchema(`
 
     type RootQuery {
         login(email: String!, password: String!): AuthData!
+        posts: PostData!
     }
 
     schema {
