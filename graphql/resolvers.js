@@ -5,6 +5,8 @@ const validator = require('validator');
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
     createUser: async function ({ userInput }, req) {
@@ -225,6 +227,33 @@ module.exports = {
             createdAt: savedPost.createdAt.toISOString(),
             updatedAt: savedPost.updatedAt.toISOString()
         }
+    },
+    deletePost: async function ({ id }, req) {
+        if (!req.isAuth) {
+            const error = new Error('Not authenticated.');
+            error.code = 401;
+            throw error;
+        }
 
+        const post = await Post.findById(id);
+
+        if (req.userId.toString() !== post.creator._id.toString() ) {
+            const error = new Error('Not authorised');
+            error.code = 403;
+            throw error;
+        }
+
+        const result = await post.delete();
+
+        clearImage(post.imageUrl);
+
+        return {
+            result: true
+        }
     }
+}
+
+const clearImage = filePath => {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, err => {console.log(err)});
 }

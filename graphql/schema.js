@@ -29,6 +29,10 @@ module.exports = buildSchema(`
         totalItems: Int!
     }
 
+    type Result {
+        result: Boolean!
+    }
+
     input UserInputData {
         email: String!
         name: String!
@@ -39,6 +43,7 @@ module.exports = buildSchema(`
         createUser(userInput: UserInputData): User!
         createPost(postInput: PostInputData): Post!
         updatePost(id: ID!, postInput: PostInputData!): Post!
+        deletePost(id: ID!): Result!
     }
 
     input PostInputData {
