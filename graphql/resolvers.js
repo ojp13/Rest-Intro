@@ -186,5 +186,45 @@ module.exports = {
             updatedAt: post.updatedAt.toISOString()
             
         }
+    },
+    updatePost: async function ( { id, postInput }, req ) {
+        if (!req.isAuth) {
+            const error = new Error('Not authorised.');
+            error.code = 401;
+            throw error
+        }
+
+        const post = await Post.findById(id);
+
+        if (!post) {
+            const error = new Error('Post not found');
+            error.code = 404;
+            throw error;
+        }
+
+        if (post.creator._id.toString() !== req.userId.toString() ) {
+            const error = new Error('Not authorised to change this post');
+            error.code = 401;
+            throw error;
+        }
+
+        post.title = postInput.title;
+        post.content = postInput.content;
+
+        if (postInput.imageUrl !== 'undefined') {        
+            post.imageUrl = postInput.imageUrl;
+        }
+
+        const savedPost = await post.update();
+
+        console.log(savedPost);
+
+        return {
+            ...savedPost,
+            _id: savedPost._id.toString(),
+            createdAt: savedPost.createdAt.toISOString(),
+            updatedAt: savedPost.updatedAt.toISOString()
+        }
+
     }
 }

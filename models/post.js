@@ -17,7 +17,13 @@ module.exports = class Post {
             `UPDATE posts
             SET title = ?, content = ?, imageUrl = ?, updated_at = ?
             WHERE _id = ?`,
-            [this.title, this.content, this.imageUrl, new Date(), this._id]);
+            [this.title, this.content, this.imageUrl, new Date(), this._id])
+                .then(result => {
+                    return Post.findById(this._id);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
     }
 
     delete() {
