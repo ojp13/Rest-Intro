@@ -29,7 +29,13 @@ module.exports = class User {
             SET name = ?, email = ?, password = ?, status = ?, updated_at = ?
             WHERE _id = ?`,
             [this.name, this.email, this.password, this.status, new Date(), this._id]
-        )
+            )
+            .then(([result]) => {
+                return User.findById(this._id)
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     createPost(post) {

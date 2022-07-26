@@ -250,6 +250,55 @@ module.exports = {
         return {
             result: true
         }
+    },
+    userStatus: async function ( args, req ) {
+        if (!req.isAuth) {
+            const error = new Error('Not Authorised');
+            error.code = 401;
+            throw error;
+        }
+
+        const userId = req.userId;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            const error = new Error('Could not find User Status');
+            error.code = 500;
+            throw error;
+        }
+
+        return {
+            status: user.status
+        }
+    },
+    updateStatus: async function ( { newStatus }, req ) {
+        if (!req.isAuth) {
+            const error = new Error('Not Authorised');
+            error.code = 401;
+            throw error;
+        }
+
+        const userId = req.userId;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            const error = new Error('Could not find User Status');
+            error.code = 500;
+            throw error;
+        }
+
+        user.status = newStatus;
+    
+        const savedUser = await user.save();
+
+        console.log(savedUser);
+
+        return {
+            result: true
+        }
+    
     }
 }
 
