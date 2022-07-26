@@ -129,8 +129,6 @@ module.exports = {
 
         const savedPost = await user.createPost(newPost);
 
-        console.log(savedPost)
-
         if (!savedPost._id) {
             const error = new Error('Post creation failed.');
             error.code = 500;
@@ -138,13 +136,8 @@ module.exports = {
         }
 
         return {
-            _id: savedPost._id,
-            title: savedPost.title,
-            content: savedPost.content,
-            imageUrl: savedPost.imageUrl,
-            creator: savedPost.creator,
-            createdAt: savedPost.createdAt,
-            updatedAt: savedPost.updatedAt
+            ...savedPost,
+            imageUrl: savedPost.imageUrl.replace("\\", "/")
         }
     },
     posts: async function ({ pageNumber }, req) {
@@ -184,11 +177,6 @@ module.exports = {
         }
 
         const post = await Post.findById(id);
-
-        console.log({
-            ...post,
-            _id: post._id.toString()
-        });
 
         return {
             
