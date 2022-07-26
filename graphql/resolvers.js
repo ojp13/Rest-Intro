@@ -149,17 +149,15 @@ module.exports = {
     },
     posts: async function (args, req) {
 
-        // if (!req.isAuth) {
-        //     const error = new Error('Not Authenticated.');
-        //     error.code = 401;
-        //     throw error;
-        // }
+        if (!req.isAuth) {
+            const error = new Error('Not Authenticated.');
+            error.code = 401;
+            throw error;
+        }
 
         const totalPosts = await Post.countRecords();
-        console.log(totalPosts);
-        const posts = await Post.fetchAll();
 
-        console.log(posts);
+        const posts = await Post.fetchAll();
 
         return {
             posts: posts.map(p => {
@@ -172,6 +170,29 @@ module.exports = {
             }),
             totalPosts: totalPosts
         }
+    },
+    post: async function ( { id }, req ) {
 
+        // if (!req.isAuth) {
+        //     const error = new Error('Not authorized.');
+        //     error.code = 401;
+        //     throw error;
+        // }
+
+        const post = await Post.findById(id);
+
+        console.log({
+            ...post,
+            _id: post._id.toString()
+        });
+
+        return {
+            
+            ...post,
+            _id: post._id.toString(),
+            createdAt: post.createdAt.toISOString(),
+            updatedAt: post.updatedAt.toISOString()
+            
+        }
     }
 }
