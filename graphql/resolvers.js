@@ -251,7 +251,7 @@ module.exports = {
             result: true
         }
     },
-    userStatus: async function ( args, req ) {
+    user: async function ( args, req ) {
         if (!req.isAuth) {
             const error = new Error('Not Authorised');
             error.code = 401;
@@ -269,7 +269,7 @@ module.exports = {
         }
 
         return {
-            status: user.status
+            ...user
         }
     },
     updateStatus: async function ( { newStatus }, req ) {
@@ -292,8 +292,6 @@ module.exports = {
         user.status = newStatus;
     
         const savedUser = await user.save();
-
-        console.log(savedUser);
 
         return {
             result: true
