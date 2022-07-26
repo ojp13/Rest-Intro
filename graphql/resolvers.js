@@ -139,7 +139,9 @@ module.exports = {
 
         return {
             ...savedPost,
-            imageUrl: savedPost.imageUrl.replace("\\", "/")
+            imageUrl: savedPost.imageUrl.replace("\\", "/"),
+            createdAt: savedPost.createdAt.toISOString(),
+            updatedAt: savedPost.updatedAt.toISOString()
         }
     },
     posts: async function ({ pageNumber }, req) {
