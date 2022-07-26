@@ -147,7 +147,7 @@ module.exports = {
             updatedAt: savedPost.updatedAt
         }
     },
-    posts: async function (args, req) {
+    posts: async function ({ pageNumber }, req) {
 
         if (!req.isAuth) {
             const error = new Error('Not Authenticated.');
@@ -155,9 +155,13 @@ module.exports = {
             throw error;
         }
 
-        const totalPosts = await Post.countRecords();
+        const page = pageNumber || 1;
 
-        const posts = await Post.fetchAll();
+        const perPage = 2;
+
+        const totalItems = await Post.countRecords();
+
+        const posts = await Post.fetchSkip((pageNumber - 1) * perPage, perPage);
 
         return {
             posts: posts.map(p => {
@@ -168,16 +172,16 @@ module.exports = {
                     updatedAt: p.updatedAt.toISOString()
                 };
             }),
-            totalPosts: totalPosts
+            totalItems: totalItems
         }
     },
     post: async function ( { id }, req ) {
 
-        // if (!req.isAuth) {
-        //     const error = new Error('Not authorized.');
-        //     error.code = 401;
-        //     throw error;
-        // }
+        if (!req.isAuth) {
+            const error = new Error('Not authorized.');
+            error.code = 401;
+            throw error;
+        }
 
         const post = await Post.findById(id);
 
