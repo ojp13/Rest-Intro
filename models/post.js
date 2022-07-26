@@ -117,6 +117,7 @@ module.exports = class Post {
         return db.execute(`
             SELECT posts.*, users._id AS user_id, users.name AS user_name FROM posts
             INNER JOIN users ON posts.user_id=users._id 
+            ORDER BY posts.created_at DESC
             LIMIT ? OFFSET ?`,
             [limit.toString(), skip.toString()]
             )
