@@ -1,14 +1,15 @@
 const db = require('../util/database');
 
 module.exports = class Post {
-    constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null) {
+    constructor(title, content, imageUrl, user_id=null, _id=null, creator=null, createdAt=null, updatedAt=null) {
         this.title = title,
         this.content = content,
         this.imageUrl = imageUrl,
         this.user_id = user_id,
         this._id = _id,
         this.creator = creator,
-        this.createdAt = createdAt
+        this.createdAt = createdAt,
+        this.updatedAt = updatedAt
     }
 
     update() {
@@ -16,7 +17,13 @@ module.exports = class Post {
             `UPDATE posts
             SET title = ?, content = ?, imageUrl = ?, updated_at = ?
             WHERE _id = ?`,
-            [this.title, this.content, this.imageUrl, new Date(), this._id]);
+            [this.title, this.content, this.imageUrl, new Date(), this._id])
+                .then(result => {
+                    return Post.findById(this._id);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
     }
 
     delete() {
@@ -46,7 +53,8 @@ module.exports = class Post {
                         name: foundPost.user_name,
                         _id: foundPost.user_id
                     },
-                    new Date(foundPost.created_at)
+                    new Date(foundPost.created_at),
+                    new Date(foundPost.updated_at)
                     );
 
                 posts.push(post);
@@ -82,7 +90,8 @@ module.exports = class Post {
                     name: foundPost.user_name,
                     _id: foundPost.user_id
                 },
-                new Date(foundPost.created_at)
+                new Date(foundPost.created_at),
+                new Date(foundPost.updated_at)
                 );
             return post;
         })
@@ -108,6 +117,7 @@ module.exports = class Post {
         return db.execute(`
             SELECT posts.*, users._id AS user_id, users.name AS user_name FROM posts
             INNER JOIN users ON posts.user_id=users._id 
+            ORDER BY posts.created_at DESC
             LIMIT ? OFFSET ?`,
             [limit.toString(), skip.toString()]
             )
@@ -125,7 +135,8 @@ module.exports = class Post {
                         name: foundPost.user_name,
                         _id: foundPost.user_id
                     },
-                    new Date(foundPost.created_at)
+                    new Date(foundPost.created_at),
+                    new Date(foundPost.updated_at)
                     );
 
                 posts.push(post);

@@ -16,14 +16,26 @@ module.exports = class User {
             return db.execute(
                 'INSERT INTO users (name, email, password, status) VALUES (?, ?, ?, ?)', 
                 [this.name, this.email, this.password, this.status]
-                );
-        }
+                )
+                .then(([result]) => {
+                    return User.findById(result.insertId)
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        };
         return db.execute(
             `UPDATE users
             SET name = ?, email = ?, password = ?, status = ?, updated_at = ?
             WHERE _id = ?`,
             [this.name, this.email, this.password, this.status, new Date(), this._id]
-        )
+            )
+            .then(([result]) => {
+                return User.findById(this._id)
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     createPost(post) {
@@ -36,6 +48,17 @@ module.exports = class User {
             this._id
             ]
         )
+            .then(([result]) => {
+                const postId = result.insertId
+
+                return Post.findById(postId);
+            })
+            .then(post => {
+                return post
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     getPosts() {
@@ -113,7 +136,9 @@ module.exports = class User {
                 return user;
             })
             .catch(err => {
-                return err
+                const error = new Error(err.message);
+                error.code = 500;
+                next(error);
             });
     }
 
